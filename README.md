@@ -1,16 +1,14 @@
 <p align="center">
-  <img src="icon.svg" alt="Hello World Logo" width="21%">
+  <img src="icon.svg" alt="linkding logo" width="21%">
 </p>
 
-# Hello World on StartOS
+# linkding on StartOS
 
-> **Upstream repo:** <https://github.com/Start9Labs/hello-world>
-
-A minimal reference service for StartOS. It displays a simple web page — nothing more. Use [this repository](https://github.com/Start9Labs/hello-world-startos) as a template when packaging a new service for StartOS.
-
-## Getting Started
-
-To learn how to use this template to create your own StartOS service package, see the [Packaging Guide](https://docs.start9.com/packaging).
+> **Upstream docs:** <https://linkding.link/>
+>
+> **Upstream repo:** <https://github.com/sissbruecker/linkding>
+>
+> Everything not listed in this document should behave the same as upstream linkding.
 
 ---
 
@@ -34,44 +32,57 @@ To learn how to use this template to create your own StartOS service package, se
 
 ## Image and Container Runtime
 
-| Property      | Value                                  |
-| ------------- | -------------------------------------- |
-| Image         | `ghcr.io/start9labs/hello-world`       |
-| Architectures | x86_64, aarch64, riscv64               |
-| Command       | `hello-world`                          |
+| Property | Value |
+| --- | --- |
+| Image | `sissbruecker/linkding:1.45.0` |
+| Architectures | `x86_64`, `aarch64` |
+| Entrypoint | Upstream default (`bootstrap.sh`) |
 
 ---
 
 ## Volume and Data Layout
 
-| Volume | Mount Point | Purpose         |
-| ------ | ----------- | --------------- |
-| `main` | `/data`     | Persistent data |
+| Volume | Mount Point | Purpose |
+| --- | --- | --- |
+| `main` | `/etc/linkding/data` | Persistent linkding data (SQLite DB, generated assets, and app data) |
+
+Additional StartOS-managed file:
+
+- `main/store.json` stores the configured bootstrap admin credentials used by startup env and StartOS actions.
 
 ---
 
 ## Installation and First-Run Flow
 
-No special setup. Install and start — the web page is immediately available.
+On install, StartOS generates bootstrap admin credentials and stores them in `store.json`.
+
+StartOS creates install tasks for:
+
+- **Set Admin Credentials** (recommended first) to choose your initial admin username/password.
+- **Get Admin Credentials** to view/copy the current configured bootstrap credentials.
+
+The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stored state so linkding can initialize or recover the bootstrap admin account.
 
 ---
 
 ## Configuration Management
 
-No configurable settings. The service runs with no user-facing configuration.
+| StartOS-managed | Upstream-managed |
+| --- | --- |
+| Bootstrap admin username/password via `store.json` + action + env injection; user lifecycle actions (add/list/remove/reset/set admin status) | All other linkding settings and behavior from upstream defaults/documentation |
 
 ---
 
 ## Network Access and Interfaces
 
-| Interface | Port | Protocol | Purpose              |
-| --------- | ---- | -------- | -------------------- |
-| Web UI    | 80   | HTTP     | Hello World web page |
+| Interface | Port | Protocol | Purpose |
+| --- | --- | --- | --- |
+| Web UI (`ui`) | `9090` | HTTP | linkding web app |
 
-**Access methods:**
+Access methods:
 
-- LAN IP with unique port
-- `<hostname>.local` with unique port
+- LAN IP with mapped port
+- `<hostname>.local` with mapped port
 - Tor `.onion` address
 - Custom domains (if configured)
 
@@ -79,25 +90,29 @@ No configurable settings. The service runs with no user-facing configuration.
 
 ## Actions (StartOS UI)
 
-None.
+1. **Set Admin Credentials**: Set or rotate bootstrap admin username/password. If linkding has already been initialized, this also updates/renames the bootstrap admin user in the database.
+2. **Get Admin Credentials**: Shows currently configured bootstrap admin username/password from `store.json`.
+3. **Add User**: Create a regular or admin user.
+4. **Get User List**: Show all users and role/status flags.
+5. **Remove User**: Delete a user (with safeguards against deleting the configured bootstrap admin or last superuser).
+6. **Reset User Password**: Set a new password for an existing user.
+7. **Set User Admin Status**: Grant or revoke admin privileges.
 
 ---
 
 ## Backups and Restore
 
-**Included in backup:**
+Backups include the `main` volume, including linkding data and `store.json`.
 
-- `main` volume
-
-**Restore behavior:** Volume is fully restored before the service starts.
+On restore, StartOS restores the volume and then starts linkding with restored state.
 
 ---
 
 ## Health Checks
 
-| Check         | Method              | Messages                                                           |
-| ------------- | ------------------- | ------------------------------------------------------------------ |
-| Web Interface | Port listening (80) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
+| Check | Method | Messages |
+| --- | --- | --- |
+| Web Interface | Port listening (`9090`) | Success: "The web interface is ready" / Error: "The web interface is not ready" |
 
 ---
 
@@ -109,13 +124,15 @@ None.
 
 ## Limitations and Differences
 
-1. **No meaningful functionality** — this is a reference/template package only
+1. Bootstrap credentials are StartOS-managed (`store.json` + actions) rather than manually managed with docker-compose `.env`.
 
 ---
 
 ## What Is Unchanged from Upstream
 
-The service is identical to upstream. There are no modifications.
+- Upstream linkding image and entrypoint behavior
+- Upstream application features, API behavior, and data model
+- Upstream on-disk data layout under `/etc/linkding/data`
 
 ---
 
@@ -128,14 +145,26 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for build instructions and development wo
 ## Quick Reference for AI Consumers
 
 ```yaml
-package_id: hello-world
-image: ghcr.io/start9labs/hello-world
-architectures: [x86_64, aarch64, riscv64]
+package_id: linkding
+upstream_version: 1.45.0
+image: sissbruecker/linkding:1.45.0
+architectures: [x86_64, aarch64]
 volumes:
-  main: /data
+  main: /etc/linkding/data
 ports:
-  ui: 80
+  ui: 9090
 dependencies: none
-startos_managed_env_vars: none
-actions: none
+startos_managed_env_vars:
+  - LD_SERVER_HOST
+  - LD_SERVER_PORT
+  - LD_SUPERUSER_NAME
+  - LD_SUPERUSER_PASSWORD
+actions:
+  - set-admin-credentials
+  - get-admin-credentials
+  - add-user
+  - get-user-list
+  - remove-user
+  - reset-user-password
+  - set-user-admin-status
 ```

@@ -1,20 +1,20 @@
 export const short = {
-  en_US: 'Bare bones example of a StartOS service',
-  es_ES: 'Ejemplo básico de un servicio de StartOS',
-  de_DE: 'Minimales Beispiel eines StartOS-Dienstes',
-  pl_PL: 'Podstawowy przykład usługi StartOS',
-  fr_FR: "Exemple minimaliste d'un service StartOS",
+  en_US: 'Self-hosted bookmark manager',
+  es_ES: 'Gestor de marcadores autoalojado',
+  de_DE: 'Selbstgehosteter Lesezeichen-Manager',
+  pl_PL: 'Samodzielnie hostowany menedżer zakładek',
+  fr_FR: 'Gestionnaire de signets auto-hébergé',
 }
 
 export const long = {
   en_US:
-    'Hello World is a template service that provides examples of basic StartOS features.',
+    'linkding is a minimal, fast bookmark manager with tagging, search, and import/export features.',
   es_ES:
-    'Hello World es un servicio de plantilla que proporciona ejemplos de las características básicas de StartOS.',
+    'linkding es un gestor de marcadores minimalista y rápido con funciones de etiquetas, búsqueda e importación/exportación.',
   de_DE:
-    'Hello World ist ein Vorlagen-Dienst, der Beispiele für grundlegende StartOS-Funktionen bietet.',
+    'linkding ist ein minimalistischer, schneller Lesezeichen-Manager mit Tags, Suche und Import-/Exportfunktionen.',
   pl_PL:
-    'Hello World to szablon usługi, który zawiera przykłady podstawowych funkcji StartOS.',
+    'linkding to minimalistyczny i szybki menedżer zakładek z tagami, wyszukiwaniem i importem/eksportem.',
   fr_FR:
-    'Hello World est un service modèle qui fournit des exemples des fonctionnalités de base de StartOS.',
+    "linkding est un gestionnaire de signets minimaliste et rapide avec des fonctions d'étiquettes, de recherche et d'import/export.",
 }

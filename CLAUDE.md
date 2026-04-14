@@ -1,4 +1,4 @@
 ## How the upstream version is pulled
-- dockerTag in `startos/manifest/index.ts`: `ghcr.io/start9labs/hello-world:<version>`
+- dockerTag in `startos/manifest/index.ts`: `sissbruecker/linkding:<version>`
 
-> This is a Start9-maintained example package.
+> This package wraps the upstream linkding Docker image.

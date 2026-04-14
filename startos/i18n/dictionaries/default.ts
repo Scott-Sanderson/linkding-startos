@@ -2,14 +2,25 @@ export const DEFAULT_LANG = 'en_US'
 
 const dict = {
   // main.ts
-  'Starting Hello World!': 0,
+  'Starting linkding!': 0,
   'Web Interface': 1,
   'The web interface is ready': 2,
   'The web interface is not ready': 3,
 
   // interfaces.ts
   'Web UI': 4,
-  'The web interface of Hello World': 5,
+  'The web interface of linkding': 5,
+
+  // actions/getAdminCredentials.ts
+  'Get Admin Credentials': 6,
+  'Retrieve the initial admin username and password': 7,
+  'Initial Admin Credentials': 8,
+  'Your initial admin credentials for linkding': 9,
+  Username: 10,
+  Password: 11,
+
+  // init/initializeService.ts
+  'Retrieve the admin password': 12,
 } as const
 
 /**

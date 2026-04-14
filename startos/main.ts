@@ -1,35 +1,33 @@
 import { i18n } from './i18n'
+import { storeJson } from './fileModels/store.json'
 import { sdk } from './sdk'
-import { uiPort } from './utils'
+import { linkdingDataDir, uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
-  /**
-   * ======================== Setup (optional) ========================
-   *
-   * In this section, we fetch any resources or run any desired preliminary commands.
-   */
-  console.info(i18n('Starting Hello World!'))
+  const store = await storeJson.read((s) => s).const(effects)
+  console.info(i18n('Starting linkding!'))
 
-  /**
-   * ======================== Daemons ========================
-   *
-   * In this section, we create one or more daemons that define the service runtime.
-   *
-   * Each daemon defines its own health check, which can optionally be exposed to the user.
-   */
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: await sdk.SubContainer.of(
       effects,
-      { imageId: 'hello-world' },
+      { imageId: 'linkding' },
       sdk.Mounts.of().mountVolume({
         volumeId: 'main',
         subpath: null,
-        mountpoint: '/data',
+        mountpoint: linkdingDataDir,
         readonly: false,
       }),
-      'hello-world-sub',
+      'linkding-sub',
     ),
-    exec: { command: ['hello-world'] },
+    exec: {
+      command: sdk.useEntrypoint(),
+      env: {
+        LD_SERVER_HOST: '[::]',
+        LD_SERVER_PORT: `${uiPort}`,
+        LD_SUPERUSER_NAME: store?.adminUsername ?? 'admin',
+        LD_SUPERUSER_PASSWORD: store?.adminPassword ?? '',
+      },
+    },
     ready: {
       display: i18n('Web Interface'),
       fn: () =>
