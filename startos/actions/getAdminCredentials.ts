@@ -5,8 +5,8 @@ import { sdk } from '../sdk'
 export const getAdminCredentials = sdk.Action.withoutInput(
   'get-admin-credentials',
   async () => ({
-    name: i18n('Get Admin Credentials'),
-    description: i18n('Retrieve the initial admin username and password'),
+    name: 'Get Owner/Admin Credentials',
+    description: 'Retrieve the bootstrap owner/admin username and password.',
     warning: null,
     allowedStatuses: 'any',
     group: null,
@@ -17,8 +17,9 @@ export const getAdminCredentials = sdk.Action.withoutInput(
 
     return {
       version: '1' as const,
-      title: i18n('Initial Admin Credentials'),
-      message: i18n('Your initial admin credentials for linkding'),
+      title: 'Owner/Admin Account Credentials',
+      message:
+        'Use these credentials to sign in as the owner/admin account. For single-user setups, use this as your primary account.',
       result: {
         type: 'group',
         value: [
@@ -26,7 +27,7 @@ export const getAdminCredentials = sdk.Action.withoutInput(
             type: 'single',
             name: i18n('Username'),
             description: null,
-            value: store?.adminUsername ?? 'admin',
+            value: store?.adminUsername ?? 'owner',
             masked: false,
             copyable: true,
             qr: false,

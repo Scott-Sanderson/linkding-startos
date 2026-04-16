@@ -1,8 +1,6 @@
 import { utils } from '@start9labs/start-sdk'
 import { getAdminCredentials } from '../actions/getAdminCredentials'
-import { setAdminCredentials } from '../actions/setAdminCredentials'
 import { storeJson } from '../fileModels/store.json'
-import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 
 export const initializeService = sdk.setupOnInit(async (effects, kind) => {
@@ -14,15 +12,12 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
   })
 
   await storeJson.write(effects, {
-    adminUsername: 'admin',
+    adminUsername: 'owner',
     adminPassword,
   })
 
-  await sdk.action.createOwnTask(effects, setAdminCredentials, 'critical', {
-    reason: 'Choose your initial admin username and password.',
-  })
-
   await sdk.action.createOwnTask(effects, getAdminCredentials, 'critical', {
-    reason: i18n('Retrieve the admin password'),
+    reason:
+      'Retrieve your owner/admin account credentials, then sign in and change the password.',
   })
 })

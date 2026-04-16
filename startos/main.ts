@@ -24,7 +24,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
       env: {
         LD_SERVER_HOST: '[::]',
         LD_SERVER_PORT: `${uiPort}`,
-        LD_SUPERUSER_NAME: store?.adminUsername ?? 'admin',
+        LD_SUPERUSER_NAME: store?.adminUsername ?? 'owner',
         LD_SUPERUSER_PASSWORD: store?.adminPassword ?? '',
       },
     },

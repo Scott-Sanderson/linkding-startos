@@ -45,7 +45,7 @@ export const removeUser = sdk.Action.withInput(
     const store = await storeJson.read((s) => s).once()
     if (input.username === store?.adminUsername) {
       throw new Error(
-        'Cannot remove the configured bootstrap admin user. Set different admin credentials first.',
+        'Cannot remove the configured owner/admin account.',
       )
     }
 

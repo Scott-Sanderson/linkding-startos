@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="icon.svg" alt="linkding logo" width="21%">
-</p>
+![linkding logo](https://raw.githubusercontent.com/Scott-Sanderson/linkding-startos/master/icon.svg)
 
 # linkding on StartOS
 
@@ -48,20 +46,19 @@
 
 Additional StartOS-managed file:
 
-- `main/store.json` stores the configured bootstrap admin credentials used by startup env and StartOS actions.
+- `main/store.json` stores the generated owner/admin credentials used by startup env and StartOS actions.
 
 ---
 
 ## Installation and First-Run Flow
 
-On install, StartOS generates bootstrap admin credentials and stores them in `store.json`.
+On install, StartOS generates a single owner/admin account (default username `owner`) and stores credentials in `store.json`.
 
-StartOS creates install tasks for:
+StartOS creates an install task for **Get Owner/Admin Credentials** so you can copy credentials and sign in immediately.
 
-- **Set Admin Credentials** (recommended first) to choose your initial admin username/password.
-- **Get Admin Credentials** to view/copy the current configured bootstrap credentials.
+For single-user setups, use this owner/admin account directly. For multi-user setups, keep owner/admin for management and create additional users with StartOS actions.
 
-The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stored state so linkding can initialize or recover the bootstrap admin account.
+The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stored state so linkding can initialize or recover the owner/admin account.
 
 ---
 
@@ -69,7 +66,7 @@ The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stor
 
 | StartOS-managed | Upstream-managed |
 | --- | --- |
-| Bootstrap admin username/password via `store.json` + action + env injection; user lifecycle actions (add/list/remove/reset/set admin status) | All other linkding settings and behavior from upstream defaults/documentation |
+| Owner/admin bootstrap credentials via `store.json` + action + env injection; optional user lifecycle actions (add/list/remove/reset/set admin status) | All other linkding settings and behavior from upstream defaults/documentation |
 
 ---
 
@@ -90,13 +87,12 @@ Access methods:
 
 ## Actions (StartOS UI)
 
-1. **Set Admin Credentials**: Set or rotate bootstrap admin username/password. If linkding has already been initialized, this also updates/renames the bootstrap admin user in the database.
-2. **Get Admin Credentials**: Shows currently configured bootstrap admin username/password from `store.json`.
-3. **Add User**: Create a regular or admin user.
-4. **Get User List**: Show all users and role/status flags.
-5. **Remove User**: Delete a user (with safeguards against deleting the configured bootstrap admin or last superuser).
-6. **Reset User Password**: Set a new password for an existing user.
-7. **Set User Admin Status**: Grant or revoke admin privileges.
+1. **Get Owner/Admin Credentials**: Shows configured owner/admin username/password from `store.json`.
+2. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
+3. **Get User List**: Show all users and role/status flags.
+4. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
+5. **Reset User Password**: Set a new password for an existing user.
+6. **Set User Admin Status**: Grant or revoke admin privileges.
 
 ---
 
@@ -124,7 +120,7 @@ None.
 
 ## Limitations and Differences
 
-1. Bootstrap credentials are StartOS-managed (`store.json` + actions) rather than manually managed with docker-compose `.env`.
+1. Owner/admin bootstrap credentials are StartOS-managed (`store.json` + actions) rather than manually managed with docker-compose `.env`.
 
 ---
 
@@ -160,7 +156,6 @@ startos_managed_env_vars:
   - LD_SUPERUSER_NAME
   - LD_SUPERUSER_PASSWORD
 actions:
-  - set-admin-credentials
   - get-admin-credentials
   - add-user
   - get-user-list

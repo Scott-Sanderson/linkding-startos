@@ -92,5 +92,43 @@ user.save()
         NEW_IS_ADMIN: input.admin ? 'true' : 'false',
       },
     )
+
+    return {
+      version: '1' as const,
+      title: 'User Created',
+      message: 'Copy and deliver these credentials to the user.',
+      result: {
+        type: 'group',
+        value: [
+          {
+            type: 'single' as const,
+            name: 'Username',
+            description: null,
+            value: input.username,
+            masked: false,
+            copyable: true,
+            qr: false,
+          },
+          {
+            type: 'single' as const,
+            name: 'Password',
+            description: null,
+            value: input.password,
+            masked: true,
+            copyable: true,
+            qr: false,
+          },
+          {
+            type: 'single' as const,
+            name: 'Role',
+            description: null,
+            value: input.admin ? 'admin' : 'regular user',
+            masked: false,
+            copyable: false,
+            qr: false,
+          },
+        ],
+      },
+    }
   },
 )
