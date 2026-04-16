@@ -18,6 +18,6 @@ export const initializeService = sdk.setupOnInit(async (effects, kind) => {
 
   await sdk.action.createOwnTask(effects, getAdminCredentials, 'critical', {
     reason:
-      'Retrieve your owner/admin account credentials, then sign in and change the password.',
+      'Retrieve your owner/admin account credentials, then open Web UI from Service Interfaces, sign in, and change the password.',
   })
 })

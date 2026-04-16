@@ -9,7 +9,10 @@ export const manifest = setupManifest({
   upstreamRepo: 'https://github.com/sissbruecker/linkding',
   marketingUrl: 'https://linkding.link/',
   donationUrl: null,
-  docsUrls: ['https://linkding.link/installation'],
+  docsUrls: [
+    'https://linkding.link/installation',
+    'https://github.com/Scott-Sanderson/linkding-startos#readme',
+  ],
   description: { short, long },
   volumes: ['main'],
   images: {

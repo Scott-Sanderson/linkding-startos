@@ -78,21 +78,23 @@ The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stor
 
 Access methods:
 
-- LAN IP with mapped port
-- `<hostname>.local` with mapped port
+- Service Interfaces → Web UI → addresses page (source of truth for exact URLs)
+- Private LAN/VPN URLs (`.local`, private domains, and private IP-based URLs)
+- Public domain URLs on router or StartTunnel gateways (for example `linkding.birbs.biz`)
 - Tor `.onion` address
-- Custom domains (if configured)
+- Copy and QR actions are available per URL from the addresses page
 
 ---
 
 ## Actions (StartOS UI)
 
 1. **Get Owner/Admin Credentials**: Shows configured owner/admin username/password from `store.json`.
-2. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
-3. **Get User List**: Show all users and role/status flags.
-4. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
-5. **Reset User Password**: Set a new password for an existing user.
-6. **Set User Admin Status**: Grant or revoke admin privileges.
+2. **Get Connection Info**: Shows current private/public interface URLs with copyable values and QR codes.
+3. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
+4. **Get User List**: Show all users and role/status flags.
+5. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
+6. **Reset User Password**: Set a new password for an existing user.
+7. **Set User Admin Status**: Grant or revoke admin privileges.
 
 ---
 
@@ -157,6 +159,7 @@ startos_managed_env_vars:
   - LD_SUPERUSER_PASSWORD
 actions:
   - get-admin-credentials
+  - get-connection-info
   - add-user
   - get-user-list
   - remove-user

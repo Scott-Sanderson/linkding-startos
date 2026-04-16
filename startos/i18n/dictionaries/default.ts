@@ -9,7 +9,7 @@ const dict = {
 
   // interfaces.ts
   'Web UI': 4,
-  'The web interface of linkding': 5,
+  'Open linkding and view shareable access addresses': 5,
 
   // actions/getAdminCredentials.ts
   'Get Admin Credentials': 6,
