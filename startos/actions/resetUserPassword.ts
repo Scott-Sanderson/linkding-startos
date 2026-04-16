@@ -1,5 +1,6 @@
+import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, runPythonScript } from './linkdingUserHelpers'
+import { isDatabaseInitialized, setUserPassword } from './linkdingUserHelpers'
 
 const { InputSpec, Value } = sdk
 
@@ -55,29 +56,16 @@ export const resetUserPassword = sdk.Action.withInput(
       )
     }
 
-    await runPythonScript(
-      effects,
-      `
-import os
-import sys
-from django.contrib.auth import get_user_model
+    const store = await storeJson.read((s) => s).once()
+    if (input.username === (store?.adminUsername ?? 'owner')) {
+      throw new Error(
+        'Use Reset Owner Password for the configured owner/admin account.',
+      )
+    }
 
-User = get_user_model()
-username = os.environ["TARGET_USERNAME"]
-password = os.environ["NEW_PASSWORD"]
-
-user = User.objects.filter(username=username).first()
-if user is None:
-    print("User does not exist.", file=sys.stderr)
-    sys.exit(1)
-
-user.set_password(password)
-user.save()
-`.trim(),
-      {
-        TARGET_USERNAME: input.username,
-        NEW_PASSWORD: input.password,
-      },
-    )
+    await setUserPassword(effects, {
+      username: input.username,
+      password: input.password,
+    })
   },
 )

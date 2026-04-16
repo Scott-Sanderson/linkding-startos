@@ -48,6 +48,49 @@ export const runPythonScript = async (
     }),
   )
 
+export const setUserPassword = async (
+  effects: ActionEffects,
+  {
+    username,
+    password,
+    requireSuperuser = false,
+  }: {
+    username: string
+    password: string
+    requireSuperuser?: boolean
+  },
+) =>
+  runPythonScript(
+    effects,
+    `
+import os
+import sys
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+username = os.environ["TARGET_USERNAME"]
+password = os.environ["NEW_PASSWORD"]
+require_superuser = os.environ["REQUIRE_SUPERUSER"] == "true"
+
+user = User.objects.filter(username=username).first()
+if user is None:
+    print("User does not exist.", file=sys.stderr)
+    sys.exit(1)
+
+if require_superuser and not user.is_superuser:
+    print("Configured owner account is not a superuser.", file=sys.stderr)
+    sys.exit(1)
+
+user.set_password(password)
+user.save()
+`.trim(),
+    {
+      TARGET_USERNAME: username,
+      NEW_PASSWORD: password,
+      REQUIRE_SUPERUSER: requireSuperuser ? 'true' : 'false',
+    },
+  )
+
 export const listUsersFromDatabase = async (
   effects: ActionEffects,
 ) =>

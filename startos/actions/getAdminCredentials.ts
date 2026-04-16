@@ -6,7 +6,7 @@ export const getAdminCredentials = sdk.Action.withoutInput(
   'get-admin-credentials',
   async () => ({
     name: 'Get Owner/Admin Credentials',
-    description: 'Retrieve the bootstrap owner/admin username and password.',
+    description: 'Retrieve the current owner/admin username and password.',
     warning: null,
     allowedStatuses: 'any',
     group: null,
@@ -19,7 +19,7 @@ export const getAdminCredentials = sdk.Action.withoutInput(
       version: '1' as const,
       title: 'Owner/Admin Account Credentials',
       message:
-        'Use these credentials to sign in as the owner/admin account. For single-user setups, use this as your primary account.',
+        'Use these credentials to sign in as the owner/admin account. For single-user setups, use this as your primary account. If needed, rotate this password using Reset Owner Password.',
       result: {
         type: 'group',
         value: [

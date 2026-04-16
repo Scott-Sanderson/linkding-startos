@@ -18,6 +18,7 @@
 - [Configuration Management](#configuration-management)
 - [Network Access and Interfaces](#network-access-and-interfaces)
 - [Actions (StartOS UI)](#actions-startos-ui)
+- [Formal User-Flow Matrix](#formal-user-flow-matrix)
 - [Backups and Restore](#backups-and-restore)
 - [Health Checks](#health-checks)
 - [Dependencies](#dependencies)
@@ -60,13 +61,15 @@ For single-user setups, use this owner/admin account directly. For multi-user se
 
 The daemon passes `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` from this stored state so linkding can initialize or recover the owner/admin account.
 
+If you ever lose owner access, use **Reset Owner Password** from StartOS actions to rotate the owner password safely and keep StartOS/linkding credentials in sync.
+
 ---
 
 ## Configuration Management
 
 | StartOS-managed | Upstream-managed |
 | --- | --- |
-| Owner/admin bootstrap credentials via `store.json` + action + env injection; optional user lifecycle actions (add/list/remove/reset/set admin status) | All other linkding settings and behavior from upstream defaults/documentation |
+| Owner/admin credentials lifecycle (`store.json`, retrieval, owner reset, user lifecycle actions), interface access guidance | Most application settings and behavior (`LD_*` options such as OIDC/auth-proxy/advanced request tuning, per-user preferences, API tokens, extensions, import/export, sharing) |
 
 ---
 
@@ -90,11 +93,27 @@ Access methods:
 
 1. **Get Owner/Admin Credentials**: Shows configured owner/admin username/password from `store.json`.
 2. **Get Connection Info**: Shows current private/public interface URLs with copyable values and QR codes.
-3. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
-4. **Get User List**: Show all users and role/status flags.
-5. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
-6. **Reset User Password**: Set a new password for an existing user.
-7. **Set User Admin Status**: Grant or revoke admin privileges.
+3. **Reset Owner Password**: Safely rotate the configured owner/admin password and update both linkding + StartOS stored credentials.
+4. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
+5. **Get User List**: Show all users and role/status flags.
+6. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
+7. **Reset User Password**: Set a new password for an existing user (non-owner accounts only).
+8. **Set User Admin Status**: Grant or revoke admin privileges (cannot revoke admin from configured owner account).
+
+---
+
+## Formal User-Flow Matrix
+
+| Flow | StartOS Entry Point | Expected Outcome | Coverage |
+| --- | --- | --- | --- |
+| Owner onboarding | Install task → **Get Owner/Admin Credentials** | Owner signs in with generated credentials, then rotates password in app or via owner reset action | Covered |
+| Owner lockout recovery | **Reset Owner Password** action | Owner password is reset in linkding and `store.json` together | Covered |
+| Single-user daily usage | Linkding Web UI | Full bookmark manager functionality is used directly in app UI | Covered |
+| Multi-user provisioning | **Add User**, **Get User List** | Operator can create and enumerate users from StartOS | Covered |
+| Multi-user maintenance | **Reset User Password**, **Set User Admin Status**, **Remove User** | User lifecycle managed with safeguards for owner account and last superuser | Covered |
+| LAN/VPN access sharing | Service Interfaces → Web UI addresses, **Get Connection Info** | Users receive copyable/QR private URLs (`.local`, private domains, VPN-reachable URLs) | Covered |
+| Public access sharing | Service Interfaces → Web UI → Add Domain (router/StartTunnel), **Get Connection Info** | Users receive public domain URL(s), e.g. `linkding.birbs.biz` | Covered |
+| Data continuity | StartOS backup/restore | linkding DB + assets + `store.json` retained through restore | Covered |
 
 ---
 
@@ -122,7 +141,10 @@ None.
 
 ## Limitations and Differences
 
-1. Owner/admin bootstrap credentials are StartOS-managed (`store.json` + actions) rather than manually managed with docker-compose `.env`.
+1. Owner/admin credentials are StartOS-managed (`store.json` + actions), not manually managed via upstream `.env` flows.
+2. Advanced upstream environment options (OIDC/auth proxy/DB engine tuning/request and logging knobs) are not yet modeled as StartOS actions and are not configurable from this package's current StartOS UI surface.
+3. This package uses `sissbruecker/linkding:1.45.0` (not `-plus`), so server-side Chromium snapshot generation is not enabled; browser-extension-based archiving remains available.
+4. StartOS exposes one `ui` interface. This is intentional; users still access full linkding functionality from the app itself (including admin pages and API paths).
 
 ---
 
@@ -160,6 +182,7 @@ startos_managed_env_vars:
 actions:
   - get-admin-credentials
   - get-connection-info
+  - reset-owner-password
   - add-user
   - get-user-list
   - remove-user

@@ -1,3 +1,4 @@
+import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
 import { isDatabaseInitialized, runPythonScript } from './linkdingUserHelpers'
 
@@ -44,6 +45,16 @@ export const setUserAdminStatus = sdk.Action.withInput(
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
         'Database not initialized yet. Start linkding at least once, then retry.',
+      )
+    }
+
+    const store = await storeJson.read((s) => s).once()
+    if (
+      input.username === (store?.adminUsername ?? 'owner') &&
+      !input.admin
+    ) {
+      throw new Error(
+        'Cannot revoke admin privileges from the configured owner/admin account.',
       )
     }
 

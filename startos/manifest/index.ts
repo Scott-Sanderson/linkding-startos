@@ -11,6 +11,11 @@ export const manifest = setupManifest({
   donationUrl: null,
   docsUrls: [
     'https://linkding.link/installation',
+    'https://linkding.link/options',
+    'https://linkding.link/browser-extension',
+    'https://linkding.link/archiving',
+    'https://linkding.link/admin',
+    'https://linkding.link/api',
     'https://github.com/Scott-Sanderson/linkding-startos#readme',
   ],
   description: { short, long },
