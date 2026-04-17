@@ -1,4 +1,4 @@
-![linkding logo](https://raw.githubusercontent.com/Scott-Sanderson/linkding-startos/master/icon.svg)
+<img src="./icon.svg" alt="linkding logo" width="120" />
 
 # linkding on StartOS
 
