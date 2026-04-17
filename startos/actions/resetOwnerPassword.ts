@@ -30,7 +30,7 @@ export const resetOwnerPassword = sdk.Action.withInput(
     warning:
       'This updates both the linkding account password and StartOS stored owner credentials.',
     allowedStatuses: 'any',
-    group: null,
+    group: 'Admin & Access',
     visibility: 'enabled',
   }),
   inputSpec,

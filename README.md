@@ -91,14 +91,19 @@ Access methods:
 
 ## Actions (StartOS UI)
 
+**Admin & Access**
+
 1. **Get Owner/Admin Credentials**: Shows configured owner/admin username/password from `store.json`.
 2. **Get Connection Info**: Shows current private/public interface URLs with copyable values and QR codes.
 3. **Reset Owner Password**: Safely rotate the configured owner/admin password and update both linkding + StartOS stored credentials.
-4. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
-5. **Get User List**: Show all users and role/status flags.
-6. **Remove User**: Delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
-7. **Reset User Password**: Set a new password for an existing user (non-owner accounts only).
-8. **Set User Admin Status**: Grant or revoke admin privileges (cannot revoke admin from configured owner account).
+
+**User Management**
+
+1. **Add User**: Create a regular or admin user and return credentials for copy/paste handoff.
+2. **Get User List**: Show all users and role/status flags.
+3. **Remove User**: Select and delete a user (with safeguards against deleting the configured owner/admin account or last superuser).
+4. **Reset User Password**: Select a non-owner user and set a new password.
+5. **Set User Admin Status**: Select a non-owner user and grant or revoke admin privileges.
 
 ---
 

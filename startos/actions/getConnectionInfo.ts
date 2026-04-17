@@ -103,7 +103,7 @@ export const getConnectionInfo = sdk.Action.withoutInput(
       'Show current Linkding URLs for private (LAN/VPN) and public access.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Admin & Access',
     visibility: 'enabled',
   }),
   async ({ effects }) => {

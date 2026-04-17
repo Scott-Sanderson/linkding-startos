@@ -1,33 +1,13 @@
 import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, runPythonScript } from './linkdingUserHelpers'
+import {
+  dynamicNonOwnerUserSelect,
+  isDatabaseInitialized,
+  noSelectableUsersOption,
+  runPythonScript,
+} from './linkdingUserHelpers'
 
 const { InputSpec, Value } = sdk
-
-const inputSpec = InputSpec.of({
-  username: Value.text({
-    name: 'Username',
-    description: 'User to update.',
-    warning: null,
-    required: true,
-    default: null,
-    masked: false,
-    minLength: 1,
-    maxLength: 150,
-    patterns: [
-      {
-        regex: '^\\S+$',
-        description: 'Username cannot contain spaces.',
-      },
-    ],
-  }),
-  admin: Value.toggle({
-    name: 'Admin',
-    description: 'Enable or disable admin privileges for this user.',
-    warning: null,
-    default: false,
-  }),
-})
 
 export const setUserAdminStatus = sdk.Action.withInput(
   'set-user-admin-status',
@@ -36,16 +16,42 @@ export const setUserAdminStatus = sdk.Action.withInput(
     description: 'Grant or revoke admin privileges for a user.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'User Management',
     visibility: 'enabled',
   }),
-  inputSpec,
+  async ({ effects }) =>
+    InputSpec.of({
+      username: dynamicNonOwnerUserSelect(effects, {
+        name: 'User',
+        description: 'Select the user account to update.',
+        emptyDescription:
+          'No non-owner users are currently available to update.',
+        emptyDisabledReason:
+          'No non-owner users are available to update.',
+      }),
+      admin: Value.toggle({
+        name: 'Admin',
+        description: 'Enable or disable admin privileges for this user.',
+        warning: null,
+        default: false,
+      }),
+    }),
   async () => ({}),
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
         'Database not initialized yet. Start linkding at least once, then retry.',
       )
+    }
+
+    if (input.username === noSelectableUsersOption) {
+      return {
+        version: '1' as const,
+        title: 'No Users Available',
+        message:
+          'No non-owner users are currently available to update.',
+        result: null,
+      }
     }
 
     const store = await storeJson.read((s) => s).once()

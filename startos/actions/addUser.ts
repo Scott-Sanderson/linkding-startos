@@ -49,7 +49,7 @@ export const addUser = sdk.Action.withInput(
     description: 'Create a new linkding user.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'User Management',
     visibility: 'enabled',
   }),
   inputSpec,

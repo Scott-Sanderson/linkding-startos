@@ -1,41 +1,13 @@
 import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, setUserPassword } from './linkdingUserHelpers'
+import {
+  dynamicNonOwnerUserSelect,
+  isDatabaseInitialized,
+  noSelectableUsersOption,
+  setUserPassword,
+} from './linkdingUserHelpers'
 
 const { InputSpec, Value } = sdk
-
-const inputSpec = InputSpec.of({
-  username: Value.text({
-    name: 'Username',
-    description: 'User to update.',
-    warning: null,
-    required: true,
-    default: null,
-    masked: false,
-    minLength: 1,
-    maxLength: 150,
-    patterns: [
-      {
-        regex: '^\\S+$',
-        description: 'Username cannot contain spaces.',
-      },
-    ],
-  }),
-  password: Value.text({
-    name: 'Password',
-    description: 'New password.',
-    warning: null,
-    required: true,
-    default: null,
-    masked: true,
-    minLength: 8,
-    maxLength: 512,
-    generate: {
-      charset: 'a-z,A-Z,0-9',
-      len: 24,
-    },
-  }),
-})
 
 export const resetUserPassword = sdk.Action.withInput(
   'reset-user-password',
@@ -44,16 +16,50 @@ export const resetUserPassword = sdk.Action.withInput(
     description: 'Set a new password for an existing user.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'User Management',
     visibility: 'enabled',
   }),
-  inputSpec,
+  async ({ effects }) =>
+    InputSpec.of({
+      username: dynamicNonOwnerUserSelect(effects, {
+        name: 'User',
+        description: 'Select the user account whose password should be reset.',
+        emptyDescription:
+          'No non-owner users are currently available for password reset.',
+        emptyDisabledReason:
+          'No non-owner users are available for password reset.',
+      }),
+      password: Value.text({
+        name: 'Password',
+        description: 'New password.',
+        warning: null,
+        required: true,
+        default: null,
+        masked: true,
+        minLength: 8,
+        maxLength: 512,
+        generate: {
+          charset: 'a-z,A-Z,0-9',
+          len: 24,
+        },
+      }),
+    }),
   async () => ({}),
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
         'Database not initialized yet. Start linkding at least once, then retry.',
       )
+    }
+
+    if (input.username === noSelectableUsersOption) {
+      return {
+        version: '1' as const,
+        title: 'No Users Available',
+        message:
+          'No non-owner users are currently available for password reset.',
+        result: null,
+      }
     }
 
     const store = await storeJson.read((s) => s).once()

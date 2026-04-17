@@ -8,7 +8,7 @@ export const getUserList = sdk.Action.withoutInput(
     description: 'Show all linkding users and their roles.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'User Management',
     visibility: 'enabled',
   }),
   async ({ effects }) => {

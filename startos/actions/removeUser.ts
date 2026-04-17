@@ -1,27 +1,13 @@
 import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, runPythonScript } from './linkdingUserHelpers'
+import {
+  dynamicNonOwnerUserSelect,
+  isDatabaseInitialized,
+  noSelectableUsersOption,
+  runPythonScript,
+} from './linkdingUserHelpers'
 
-const { InputSpec, Value } = sdk
-
-const inputSpec = InputSpec.of({
-  username: Value.text({
-    name: 'Username',
-    description: 'Username to remove.',
-    warning: null,
-    required: true,
-    default: null,
-    masked: false,
-    minLength: 1,
-    maxLength: 150,
-    patterns: [
-      {
-        regex: '^\\S+$',
-        description: 'Username cannot contain spaces.',
-      },
-    ],
-  }),
-})
+const { InputSpec } = sdk
 
 export const removeUser = sdk.Action.withInput(
   'remove-user',
@@ -30,16 +16,35 @@ export const removeUser = sdk.Action.withInput(
     description: 'Delete a user account.',
     warning: 'This permanently removes the user account.',
     allowedStatuses: 'any',
-    group: null,
+    group: 'User Management',
     visibility: 'enabled',
   }),
-  inputSpec,
+  async ({ effects }) =>
+    InputSpec.of({
+      username: dynamicNonOwnerUserSelect(effects, {
+        name: 'User',
+        description: 'Select the user account to delete.',
+        warning: 'This permanently removes the selected user account.',
+        emptyDescription: 'No non-owner users are currently available to remove.',
+        emptyDisabledReason: 'No non-owner users are available to remove.',
+      }),
+    }),
   async () => ({}),
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
         'Database not initialized yet. Start linkding at least once, then retry.',
       )
+    }
+
+    if (input.username === noSelectableUsersOption) {
+      return {
+        version: '1' as const,
+        title: 'No Users Available',
+        message:
+          'No non-owner users are currently available to remove.',
+        result: null,
+      }
     }
 
     const store = await storeJson.read((s) => s).once()

@@ -1,3 +1,4 @@
+import { storeJson } from '../fileModels/store.json'
 import { sdk } from '../sdk'
 import { linkdingDataDir, linkdingWorkDir } from '../utils'
 
@@ -12,6 +13,16 @@ type ActionEffects = Parameters<typeof sdk.SubContainer.withTemp>[0]
 type LinkdingSubcontainer = Parameters<
   Parameters<typeof sdk.SubContainer.withTemp>[4]
 >[0]
+
+const { Value } = sdk
+
+export const noSelectableUsersOption = '__no-selectable-users__'
+
+const toUserSelectValues = (usernames: string[]) =>
+  usernames.reduce<Record<string, string>>((values, username) => {
+    values[username] = username
+    return values
+  }, {})
 
 const withLinkdingSubcontainer = <T>(
   effects: ActionEffects,
@@ -36,16 +47,93 @@ export const isDatabaseInitialized = (effects: ActionEffects) =>
     return result.exitCode === 0
   })
 
+export const dynamicNonOwnerUserSelect = (
+  effects: ActionEffects,
+  {
+    name,
+    description,
+    warning = null,
+    emptyDescription,
+    emptyDisabledReason,
+  }: {
+    name: string
+    description: string
+    warning?: string | null
+    emptyDescription: string
+    emptyDisabledReason: string
+  },
+) =>
+  Value.dynamicSelect(async () => {
+    if (!(await isDatabaseInitialized(effects))) {
+      return {
+        name,
+        description:
+          'Database not initialized yet. Start linkding at least once, then retry.',
+        warning,
+        default: noSelectableUsersOption,
+        values: {
+          [noSelectableUsersOption]: 'No selectable users found',
+        },
+        disabled:
+          'Database not initialized yet. Start linkding at least once, then retry.',
+      }
+    }
+
+    const ownerUsername = (await storeJson.read((s) => s.adminUsername).once()) ?? 'owner'
+    const users = await listUsersFromDatabase(effects)
+    const selectableUsernames = users
+      .map((user) => user.username)
+      .filter((username) => username !== ownerUsername)
+
+    if (selectableUsernames.length === 0) {
+      return {
+        name,
+        description: emptyDescription,
+        warning,
+        default: noSelectableUsersOption,
+        values: {
+          [noSelectableUsersOption]: 'No selectable users found',
+        },
+        disabled: emptyDisabledReason,
+      }
+    }
+
+    return {
+      name,
+      description,
+      warning,
+      default: selectableUsernames[0],
+      values: toUserSelectValues(selectableUsernames),
+      disabled: false,
+    }
+  })
+
 export const runPythonScript = async (
   effects: ActionEffects,
   script: string,
   env: Record<string, string> = {},
 ) =>
+  // Action scripts execute outside manage.py, so initialize Django explicitly.
   withLinkdingSubcontainer(effects, async (sub) =>
-    sub.execFail(['python', '-c', script], {
-      cwd: linkdingWorkDir,
-      env,
-    }),
+    sub.execFail(
+      [
+        'python',
+        '-c',
+        `
+import os
+import django
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "bookmarks.settings")
+django.setup()
+
+${script}
+`.trim(),
+      ],
+      {
+        cwd: linkdingWorkDir,
+        env,
+      },
+    ),
   )
 
 export const setUserPassword = async (
@@ -94,12 +182,10 @@ user.save()
 export const listUsersFromDatabase = async (
   effects: ActionEffects,
 ) =>
-  withLinkdingSubcontainer(effects, async (sub) => {
-    const { stdout } = await sub.execFail(
-      [
-        'python',
-        '-c',
-        `
+  withLinkdingSubcontainer(effects, async () => {
+    const { stdout } = await runPythonScript(
+      effects,
+      `
 import json
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -114,8 +200,6 @@ users = [
 ]
 print(json.dumps(users))
 `.trim(),
-      ],
-      { cwd: linkdingWorkDir },
     )
 
     return JSON.parse(stdout.toString()) as LinkdingUserInfo[]

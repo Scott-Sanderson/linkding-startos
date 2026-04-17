@@ -9,7 +9,7 @@ export const getAdminCredentials = sdk.Action.withoutInput(
     description: 'Retrieve the current owner/admin username and password.',
     warning: null,
     allowedStatuses: 'any',
-    group: null,
+    group: 'Admin & Access',
     visibility: 'enabled',
   }),
   async () => {
