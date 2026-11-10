@@ -11,6 +11,7 @@ concurrency:
 
 jobs:
   tag:
+    if: ${{ vars.REFERENCE_REGISTRY != '' }}
     uses: Start9Labs/start-technologies/.github/workflows/tagAndRelease.yml@master
     with:
       REFERENCE_REGISTRY: ${{ vars.REFERENCE_REGISTRY }}

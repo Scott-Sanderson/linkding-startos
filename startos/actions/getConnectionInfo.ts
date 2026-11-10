@@ -16,12 +16,14 @@ const toAddressType = ({
   kind: 'ipv4' | 'ipv6' | 'mdns' | 'private-domain' | 'public-domain' | 'plugin'
   isPublic: boolean
 }) => {
-  if (kind === 'mdns') return 'mDNS (.local)'
-  if (kind === 'private-domain') return 'Private Domain'
-  if (kind === 'public-domain') return 'Public Domain'
-  if (kind === 'ipv4') return isPublic ? 'Public IPv4' : 'Private IPv4'
-  if (kind === 'ipv6') return isPublic ? 'Public IPv6' : 'Private IPv6'
-  return 'Plugin URL'
+  if (kind === 'mdns') return i18n('mDNS (.local)')
+  if (kind === 'private-domain') return i18n('Private Domain')
+  if (kind === 'public-domain') return i18n('Public Domain')
+  if (kind === 'ipv4')
+    return isPublic ? i18n('Public IPv4') : i18n('Private IPv4')
+  if (kind === 'ipv6')
+    return isPublic ? i18n('Public IPv6') : i18n('Private IPv6')
+  return i18n('Plugin URL')
 }
 
 const toGateway = (metadata: {
@@ -76,7 +78,7 @@ const toAddressGroup = ({
       : [
           {
             type: 'single' as const,
-            name: 'None',
+            name: i18n('None'),
             description: null,
             value: emptyMessage,
             masked: false,
@@ -90,9 +92,10 @@ const toAddressGroup = ({
 export const getConnectionInfo = sdk.Action.withoutInput(
   'get-connection-info',
   async () => ({
-    name: 'Get Connection Info',
-    description:
+    name: i18n('Get Connection Info'),
+    description: i18n(
       'Show current Linkding URLs for private (LAN/VPN) and public access.',
+    ),
     warning: null,
     allowedStatuses: 'any',
     group: i18n('Admin & Access'),
@@ -121,7 +124,9 @@ export const getConnectionInfo = sdk.Action.withoutInput(
 
     if (addresses.length === 0) {
       throw new Error(
-        'No Linkding interface addresses are available yet. Start the service and retry.',
+        i18n(
+          'No Linkding interface addresses are available yet. Start the service and retry.',
+        ),
       )
     }
 
@@ -137,26 +142,30 @@ export const getConnectionInfo = sdk.Action.withoutInput(
 
     return {
       version: '1' as const,
-      title: 'Linkding Connection Info',
-      message: 'Use an available address to connect to Linkding.',
+      title: i18n('Linkding Connection Info'),
+      message: i18n('Use an available address to connect to Linkding.'),
       result: {
         type: 'group' as const,
         value: [
           toAddressGroup({
-            name: 'Private Access (LAN/VPN)',
-            description:
+            name: i18n('Private Access (LAN/VPN)'),
+            description: i18n(
               'Use these URLs on your local network or while connected to VPN.',
+            ),
             addresses: privateAddresses,
-            emptyMessage:
+            emptyMessage: i18n(
               'No private URLs are currently available for this interface.',
+            ),
           }),
           toAddressGroup({
-            name: 'Public Access (Internet)',
-            description:
+            name: i18n('Public Access (Internet)'),
+            description: i18n(
               'Use these URLs for remote/public access after DNS and forwarding are configured.',
+            ),
             addresses: publicAddresses,
-            emptyMessage:
+            emptyMessage: i18n(
               'No public URLs are currently available for this interface.',
+            ),
           }),
         ],
       },
