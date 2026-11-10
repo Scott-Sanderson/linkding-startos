@@ -1,4 +1,5 @@
 import { sdk } from '../sdk'
+import { i18n } from '../i18n'
 import { isDatabaseInitialized, runPythonScript } from './linkdingUserHelpers'
 
 const { InputSpec, Value } = sdk
@@ -49,7 +50,7 @@ export const addUser = sdk.Action.withInput(
     description: 'Create a new linkding user.',
     warning: null,
     allowedStatuses: 'any',
-    group: 'User Management',
+    group: i18n('User Management'),
     visibility: 'enabled',
   }),
   inputSpec,
@@ -108,6 +109,7 @@ user.save()
             masked: false,
             copyable: true,
             qr: false,
+            launchable: false,
           },
           {
             type: 'single' as const,
@@ -117,6 +119,7 @@ user.save()
             masked: true,
             copyable: true,
             qr: false,
+            launchable: false,
           },
           {
             type: 'single' as const,
@@ -126,6 +129,7 @@ user.save()
             masked: false,
             copyable: false,
             qr: false,
+            launchable: false,
           },
         ],
       },

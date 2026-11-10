@@ -1,4 +1,6 @@
 import { sdk } from '../sdk'
+import { i18n } from '../i18n'
+import { uiPort } from '../utils'
 
 type ConnectionAddress = {
   url: string
@@ -11,13 +13,7 @@ const toAddressType = ({
   kind,
   isPublic,
 }: {
-  kind:
-    | 'ipv4'
-    | 'ipv6'
-    | 'mdns'
-    | 'private-domain'
-    | 'public-domain'
-    | 'plugin'
+  kind: 'ipv4' | 'ipv6' | 'mdns' | 'private-domain' | 'public-domain' | 'plugin'
   isPublic: boolean
 }) => {
   if (kind === 'mdns') return 'mDNS (.local)'
@@ -29,13 +25,7 @@ const toAddressType = ({
 }
 
 const toGateway = (metadata: {
-  kind:
-    | 'ipv4'
-    | 'ipv6'
-    | 'mdns'
-    | 'private-domain'
-    | 'public-domain'
-    | 'plugin'
+  kind: 'ipv4' | 'ipv6' | 'mdns' | 'private-domain' | 'public-domain' | 'plugin'
   gateway?: string
   gateways?: string[]
   packageId?: string
@@ -50,7 +40,7 @@ const toGateway = (metadata: {
   ) {
     return metadata.gateway ?? null
   }
-  return metadata.kind === 'plugin' ? metadata.packageId ?? null : null
+  return metadata.kind === 'plugin' ? (metadata.packageId ?? null) : null
 }
 
 const toAddressMember = (address: ConnectionAddress) => ({
@@ -63,6 +53,7 @@ const toAddressMember = (address: ConnectionAddress) => ({
   masked: false,
   copyable: true,
   qr: true,
+  launchable: true,
 })
 
 const toAddressGroup = ({
@@ -91,6 +82,7 @@ const toAddressGroup = ({
             masked: false,
             copyable: false,
             qr: false,
+            launchable: false,
           },
         ],
 })
@@ -103,26 +95,27 @@ export const getConnectionInfo = sdk.Action.withoutInput(
       'Show current Linkding URLs for private (LAN/VPN) and public access.',
     warning: null,
     allowedStatuses: 'any',
-    group: 'Admin & Access',
+    group: i18n('Admin & Access'),
     visibility: 'enabled',
   }),
   async ({ effects }) => {
-    const addresses = await sdk.serviceInterface
-      .getOwn(effects, 'ui', (serviceInterface) => {
+    const addresses = await sdk.host
+      .getOwn(effects, 'ui-multi', (host) => {
+        const serviceInterface = host?.bindings[uiPort]?.interfaces['ui']
         const addressInfo = serviceInterface?.addressInfo
         if (!addressInfo) return [] as ConnectionAddress[]
 
-        return addressInfo.nonLocal
-          .format('hostname-info')
-          .map((hostname) => ({
-            url: addressInfo.toUrl(hostname),
-            visibility: hostname.public ? ('public' as const) : ('private' as const),
-            addressType: toAddressType({
-              kind: hostname.metadata.kind,
-              isPublic: hostname.public,
-            }),
-            gateway: toGateway(hostname.metadata),
-          }))
+        return addressInfo.nonLocal.format('hostname-info').map((hostname) => ({
+          url: addressInfo.toUrl(hostname),
+          visibility: hostname.public
+            ? ('public' as const)
+            : ('private' as const),
+          addressType: toAddressType({
+            kind: hostname.metadata.kind,
+            isPublic: hostname.public,
+          }),
+          gateway: toGateway(hostname.metadata),
+        }))
       })
       .once()
 
@@ -145,8 +138,7 @@ export const getConnectionInfo = sdk.Action.withoutInput(
     return {
       version: '1' as const,
       title: 'Linkding Connection Info',
-      message:
-        'Use private URLs for LAN/VPN users. Use public URLs after exposing Linkding with a public domain on a router or StartTunnel gateway.',
+      message: 'Use an available address to connect to linkding.',
       result: {
         type: 'group' as const,
         value: [
@@ -166,41 +158,6 @@ export const getConnectionInfo = sdk.Action.withoutInput(
             emptyMessage:
               'No public URLs are currently available for this interface.',
           }),
-          {
-            type: 'group' as const,
-            name: 'Custom Domain Setup (StartTunnel)',
-            description:
-              'Use this flow to publish linkding on your custom domain over StartTunnel.',
-            value: [
-              {
-                type: 'single' as const,
-                name: 'Example',
-                description: null,
-                value: 'linkding.example.com',
-                masked: false,
-                copyable: true,
-                qr: false,
-              },
-              {
-                type: 'single' as const,
-                name: 'UI Path',
-                description: null,
-                value: 'Service Interfaces -> Web UI -> StartTunnel',
-                masked: false,
-                copyable: false,
-                qr: false,
-              },
-              {
-                type: 'single' as const,
-                name: 'Next Step',
-                description: null,
-                value: 'Click Add Domain, then select Public Domain.',
-                masked: false,
-                copyable: false,
-                qr: false,
-              },
-            ],
-          },
         ],
       },
     }

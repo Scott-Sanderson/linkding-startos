@@ -21,6 +21,14 @@ const dict = {
 
   // init/initializeService.ts
   'Retrieve the admin password': 12,
+  'Set Owner Password': 13,
+  'Generate a password for the owner account.': 14,
+  'This replaces the current owner password.': 15,
+  'Admin & Access': 16,
+  'User Management': 17,
+  'Owner Credentials': 18,
+  'Save these credentials; the password cannot be displayed again.': 19,
+  'Set the owner password before signing in to linkding.': 20,
 } as const
 
 /**

@@ -1,4 +1,5 @@
 import { storeJson } from '../fileModels/store.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import {
   dynamicNonOwnerUserSelect,
@@ -16,7 +17,7 @@ export const removeUser = sdk.Action.withInput(
     description: 'Delete a user account.',
     warning: 'This permanently removes the user account.',
     allowedStatuses: 'any',
-    group: 'User Management',
+    group: i18n('User Management'),
     visibility: 'enabled',
   }),
   async ({ effects }) =>
@@ -25,7 +26,8 @@ export const removeUser = sdk.Action.withInput(
         name: 'User',
         description: 'Select the user account to delete.',
         warning: 'This permanently removes the selected user account.',
-        emptyDescription: 'No non-owner users are currently available to remove.',
+        emptyDescription:
+          'No non-owner users are currently available to remove.',
         emptyDisabledReason: 'No non-owner users are available to remove.',
       }),
     }),
@@ -41,17 +43,14 @@ export const removeUser = sdk.Action.withInput(
       return {
         version: '1' as const,
         title: 'No Users Available',
-        message:
-          'No non-owner users are currently available to remove.',
+        message: 'No non-owner users are currently available to remove.',
         result: null,
       }
     }
 
     const store = await storeJson.read((s) => s).once()
     if (input.username === store?.adminUsername) {
-      throw new Error(
-        'Cannot remove the configured owner/admin account.',
-      )
+      throw new Error('Cannot remove the configured owner/admin account.')
     }
 
     await runPythonScript(
