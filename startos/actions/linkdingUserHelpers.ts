@@ -24,7 +24,7 @@ const toUserSelectValues = (usernames: string[]) =>
     return values
   }, {})
 
-const withLinkdingSubcontainer = <T>(
+export const withLinkdingSubcontainer = <T>(
   effects: ActionEffects,
   fn: (sub: LinkdingSubcontainer) => Promise<T>,
 ) =>
@@ -43,7 +43,11 @@ const withLinkdingSubcontainer = <T>(
 
 export const isDatabaseInitialized = (effects: ActionEffects) =>
   withLinkdingSubcontainer(effects, async (sub) => {
-    const result = await sub.exec(['test', '-f', `${linkdingDataDir}/db.sqlite3`])
+    const result = await sub.exec([
+      'test',
+      '-f',
+      `${linkdingDataDir}/db.sqlite3`,
+    ])
     return result.exitCode === 0
   })
 
@@ -68,18 +72,19 @@ export const dynamicNonOwnerUserSelect = (
       return {
         name,
         description:
-          'Database not initialized yet. Start linkding at least once, then retry.',
+          'Database not initialized yet. Start Linkding at least once, then retry.',
         warning,
         default: noSelectableUsersOption,
         values: {
           [noSelectableUsersOption]: 'No selectable users found',
         },
         disabled:
-          'Database not initialized yet. Start linkding at least once, then retry.',
+          'Database not initialized yet. Start Linkding at least once, then retry.',
       }
     }
 
-    const ownerUsername = (await storeJson.read((s) => s.adminUsername).once()) ?? 'owner'
+    const ownerUsername =
+      (await storeJson.read((s) => s.adminUsername).once()) ?? 'owner'
     const users = await listUsersFromDatabase(effects)
     const selectableUsernames = users
       .map((user) => user.username)
@@ -179,13 +184,10 @@ user.save()
     },
   )
 
-export const listUsersFromDatabase = async (
-  effects: ActionEffects,
-) =>
-  withLinkdingSubcontainer(effects, async () => {
-    const { stdout } = await runPythonScript(
-      effects,
-      `
+export const listUsersFromDatabase = async (effects: ActionEffects) => {
+  const { stdout } = await runPythonScript(
+    effects,
+    `
 import json
 from django.contrib.auth import get_user_model
 User = get_user_model()
@@ -200,7 +202,7 @@ users = [
 ]
 print(json.dumps(users))
 `.trim(),
-    )
+  )
 
-    return JSON.parse(stdout.toString()) as LinkdingUserInfo[]
-  })
+  return JSON.parse(stdout.toString()) as LinkdingUserInfo[]
+}

@@ -1,4 +1,5 @@
 import { storeJson } from '../fileModels/store.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import {
   dynamicNonOwnerUserSelect,
@@ -16,7 +17,7 @@ export const resetUserPassword = sdk.Action.withInput(
     description: 'Set a new password for an existing user.',
     warning: null,
     allowedStatuses: 'any',
-    group: 'User Management',
+    group: i18n('User Management'),
     visibility: 'enabled',
   }),
   async ({ effects }) =>
@@ -48,7 +49,7 @@ export const resetUserPassword = sdk.Action.withInput(
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
+        'Database not initialized yet. Start Linkding at least once, then retry.',
       )
     }
 
@@ -65,7 +66,7 @@ export const resetUserPassword = sdk.Action.withInput(
     const store = await storeJson.read((s) => s).once()
     if (input.username === (store?.adminUsername ?? 'owner')) {
       throw new Error(
-        'Use Reset Owner Password for the configured owner/admin account.',
+        'Use Set Owner Password for the configured owner/admin account.',
       )
     }
 

@@ -1,4 +1,5 @@
 import { storeJson } from '../fileModels/store.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import {
   dynamicNonOwnerUserSelect,
@@ -16,7 +17,7 @@ export const setUserAdminStatus = sdk.Action.withInput(
     description: 'Grant or revoke admin privileges for a user.',
     warning: null,
     allowedStatuses: 'any',
-    group: 'User Management',
+    group: i18n('User Management'),
     visibility: 'enabled',
   }),
   async ({ effects }) =>
@@ -26,8 +27,7 @@ export const setUserAdminStatus = sdk.Action.withInput(
         description: 'Select the user account to update.',
         emptyDescription:
           'No non-owner users are currently available to update.',
-        emptyDisabledReason:
-          'No non-owner users are available to update.',
+        emptyDisabledReason: 'No non-owner users are available to update.',
       }),
       admin: Value.toggle({
         name: 'Admin',
@@ -40,7 +40,7 @@ export const setUserAdminStatus = sdk.Action.withInput(
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
+        'Database not initialized yet. Start Linkding at least once, then retry.',
       )
     }
 
@@ -48,17 +48,13 @@ export const setUserAdminStatus = sdk.Action.withInput(
       return {
         version: '1' as const,
         title: 'No Users Available',
-        message:
-          'No non-owner users are currently available to update.',
+        message: 'No non-owner users are currently available to update.',
         result: null,
       }
     }
 
     const store = await storeJson.read((s) => s).once()
-    if (
-      input.username === (store?.adminUsername ?? 'owner') &&
-      !input.admin
-    ) {
+    if (input.username === (store?.adminUsername ?? 'owner') && !input.admin) {
       throw new Error(
         'Cannot revoke admin privileges from the configured owner/admin account.',
       )

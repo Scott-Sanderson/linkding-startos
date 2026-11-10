@@ -2,25 +2,33 @@ export const DEFAULT_LANG = 'en_US'
 
 const dict = {
   // main.ts
-  'Starting linkding!': 0,
+  'Starting Linkding!': 0,
   'Web Interface': 1,
   'The web interface is ready': 2,
   'The web interface is not ready': 3,
 
   // interfaces.ts
   'Web UI': 4,
-  'Open linkding and view shareable access addresses': 5,
+  'Open Linkding and view shareable access addresses': 5,
 
   // actions/getAdminCredentials.ts
   'Get Admin Credentials': 6,
   'Retrieve the initial admin username and password': 7,
   'Initial Admin Credentials': 8,
-  'Your initial admin credentials for linkding': 9,
+  'Your initial admin credentials for Linkding': 9,
   Username: 10,
   Password: 11,
 
   // init/initializeService.ts
   'Retrieve the admin password': 12,
+  'Set Owner Password': 13,
+  'Generate a password for the owner account.': 14,
+  'This replaces the current owner password.': 15,
+  'Admin & Access': 16,
+  'User Management': 17,
+  'Owner Credentials': 18,
+  'Save these credentials; the password cannot be displayed again.': 19,
+  'Set the owner password before signing in to Linkding.': 20,
 } as const
 
 /**

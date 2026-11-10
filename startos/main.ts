@@ -1,11 +1,9 @@
 import { i18n } from './i18n'
-import { storeJson } from './fileModels/store.json'
 import { sdk } from './sdk'
 import { linkdingDataDir, uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
-  const store = await storeJson.read((s) => s).const(effects)
-  console.info(i18n('Starting linkding!'))
+  console.info(i18n('Starting Linkding!'))
 
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: await sdk.SubContainer.of(
@@ -24,8 +22,6 @@ export const main = sdk.setupMain(async ({ effects }) => {
       env: {
         LD_SERVER_HOST: '[::]',
         LD_SERVER_PORT: `${uiPort}`,
-        LD_SUPERUSER_NAME: store?.adminUsername ?? 'owner',
-        LD_SUPERUSER_PASSWORD: store?.adminPassword ?? '',
       },
     },
     ready: {

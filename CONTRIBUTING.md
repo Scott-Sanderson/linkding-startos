@@ -10,7 +10,7 @@ See the [StartOS Packaging Guide](https://docs.start9.com/packaging/) for comple
 # Install dependencies
 npm ci
 
-# Build universal package
+# Build packages for x86_64 and aarch64
 make
 ```
 

@@ -1,86 +1,77 @@
+import { utils } from '@start9labs/start-sdk'
 import { storeJson } from '../fileModels/store.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, setUserPassword } from './linkdingUserHelpers'
+import { linkdingWorkDir } from '../utils'
+import {
+  setUserPassword,
+  withLinkdingSubcontainer,
+} from './linkdingUserHelpers'
 
-const { InputSpec, Value } = sdk
-
-const inputSpec = InputSpec.of({
-  password: Value.text({
-    name: 'New Owner Password',
-    description: 'New password for the configured owner/admin account.',
-    warning: null,
-    required: true,
-    default: null,
-    masked: true,
-    minLength: 8,
-    maxLength: 512,
-    generate: {
-      charset: 'a-z,A-Z,0-9',
-      len: 24,
-    },
-  }),
-})
-
-export const resetOwnerPassword = sdk.Action.withInput(
+export const resetOwnerPassword = sdk.Action.withoutInput(
   'reset-owner-password',
-  async () => ({
-    name: 'Reset Owner Password',
-    description:
-      'Safely reset the password for the configured owner/admin account.',
-    warning:
-      'This updates both the linkding account password and StartOS stored owner credentials.',
+  async ({ effects }) => ({
+    name: i18n('Set Owner Password'),
+    description: i18n('Generate a password for the owner account.'),
+    warning: (await storeJson.read((s) => s.adminConfigured).const(effects))
+      ? i18n('This replaces the current owner password.')
+      : null,
     allowedStatuses: 'any',
-    group: 'Admin & Access',
+    group: i18n('Admin & Access'),
     visibility: 'enabled',
   }),
-  inputSpec,
-  async () => ({}),
-  async ({ effects, input }) => {
-    if (!(await isDatabaseInitialized(effects))) {
-      throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
-      )
-    }
+  async ({ effects }) => {
+    const username =
+      (await storeJson.read((s) => s.adminUsername).once()) ?? 'owner'
+    const password = utils.getDefaultString({ charset: 'a-z,A-Z,0-9', len: 32 })
 
-    const store = await storeJson.read((s) => s).once()
-    const ownerUsername = store?.adminUsername ?? 'owner'
-
+    await withLinkdingSubcontainer(effects, async (sub) => {
+      await sub.execFail(['python', 'manage.py', 'migrate', '--noinput'], {
+        cwd: linkdingWorkDir,
+      })
+      await sub.execFail(['python', 'manage.py', 'create_initial_superuser'], {
+        cwd: linkdingWorkDir,
+        env: { LD_SUPERUSER_NAME: username, LD_SUPERUSER_PASSWORD: password },
+      })
+    })
     await setUserPassword(effects, {
-      username: ownerUsername,
-      password: input.password,
+      username,
+      password,
       requireSuperuser: true,
     })
-
     await storeJson.merge(effects, {
-      adminUsername: ownerUsername,
-      adminPassword: input.password,
+      adminUsername: username,
+      adminConfigured: true,
     })
 
     return {
-      version: '1' as const,
-      title: 'Owner Password Reset',
-      message:
-        'Owner/admin password updated in both linkding and StartOS credential storage.',
+      version: '1',
+      title: i18n('Owner Credentials'),
+      message: i18n(
+        'Save these credentials; the password cannot be displayed again.',
+      ),
       result: {
         type: 'group',
         value: [
           {
-            type: 'single' as const,
-            name: 'Username',
+            type: 'single',
+            name: i18n('Username'),
             description: null,
-            value: ownerUsername,
+            value: username,
             masked: false,
             copyable: true,
             qr: false,
+            launchable: false,
           },
           {
-            type: 'single' as const,
-            name: 'New Password',
+            type: 'single',
+            name: i18n('Password'),
             description: null,
-            value: input.password,
+            value: password,
             masked: true,
             copyable: true,
             qr: false,
+            launchable: false,
           },
         ],
       },

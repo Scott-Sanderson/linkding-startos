@@ -1,20 +1,24 @@
 import { sdk } from '../sdk'
-import { isDatabaseInitialized, listUsersFromDatabase } from './linkdingUserHelpers'
+import { i18n } from '../i18n'
+import {
+  isDatabaseInitialized,
+  listUsersFromDatabase,
+} from './linkdingUserHelpers'
 
 export const getUserList = sdk.Action.withoutInput(
   'get-user-list',
   async () => ({
     name: 'Get User List',
-    description: 'Show all linkding users and their roles.',
+    description: 'Show all Linkding users and their roles.',
     warning: null,
     allowedStatuses: 'any',
-    group: 'User Management',
+    group: i18n('User Management'),
     visibility: 'enabled',
   }),
   async ({ effects }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
+        'Database not initialized yet. Start Linkding at least once, then retry.',
       )
     }
 
@@ -36,6 +40,7 @@ export const getUserList = sdk.Action.withoutInput(
               masked: false,
               copyable: false,
               qr: false,
+              launchable: false,
             },
           ],
         },
@@ -60,6 +65,7 @@ export const getUserList = sdk.Action.withoutInput(
           masked: false,
           copyable: false,
           qr: false,
+          launchable: false,
         })),
       },
     }

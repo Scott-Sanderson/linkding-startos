@@ -3,31 +3,18 @@ import { long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'linkding',
-  title: 'linkding',
+  title: 'Linkding',
   license: 'MIT',
   packageRepo: 'https://github.com/Scott-Sanderson/linkding-startos',
   upstreamRepo: 'https://github.com/sissbruecker/linkding',
   marketingUrl: 'https://linkding.link/',
   donationUrl: null,
-  docsUrls: [
-    'https://linkding.link/',
-    'https://github.com/Scott-Sanderson/linkding-startos#readme',
-  ],
   description: { short, long },
-  volumes: ['main'],
+  volumes: ['main', 'startos'],
   images: {
     linkding: {
-      source: { dockerTag: 'sissbruecker/linkding:1.45.0' },
+      source: { dockerTag: 'sissbruecker/linkding:1.47.0' },
       arch: ['x86_64', 'aarch64'],
     },
   },
-  alerts: {
-    install: null,
-    update: null,
-    uninstall: null,
-    restore: null,
-    start: null,
-    stop: null,
-  },
-  dependencies: {},
 })
