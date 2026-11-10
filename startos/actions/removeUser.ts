@@ -13,9 +13,9 @@ const { InputSpec } = sdk
 export const removeUser = sdk.Action.withInput(
   'remove-user',
   async () => ({
-    name: 'Remove User',
-    description: 'Delete a user account.',
-    warning: 'This permanently removes the user account.',
+    name: i18n('Remove User'),
+    description: i18n('Delete a user account.'),
+    warning: i18n('This permanently removes the user account.'),
     allowedStatuses: 'any',
     group: i18n('User Management'),
     visibility: 'enabled',
@@ -23,34 +23,39 @@ export const removeUser = sdk.Action.withInput(
   async ({ effects }) =>
     InputSpec.of({
       username: dynamicNonOwnerUserSelect(effects, {
-        name: 'User',
-        description: 'Select the user account to delete.',
-        warning: 'This permanently removes the selected user account.',
-        emptyDescription:
+        name: i18n('User'),
+        description: i18n('Select the user account to delete.'),
+        warning: i18n('This permanently removes the selected user account.'),
+        emptyDescription: i18n(
           'No non-owner users are currently available to remove.',
-        emptyDisabledReason: 'No non-owner users are available to remove.',
+        ),
+        emptyDisabledReason: i18n(
+          'No non-owner users are available to remove.',
+        ),
       }),
     }),
   async () => ({}),
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start Linkding at least once, then retry.',
+        i18n(
+          'Database not initialized yet. Start Linkding at least once, then retry.',
+        ),
       )
     }
 
     if (input.username === noSelectableUsersOption) {
       return {
         version: '1' as const,
-        title: 'No Users Available',
-        message: 'No non-owner users are currently available to remove.',
+        title: i18n('No Users Available'),
+        message: i18n('No non-owner users are currently available to remove.'),
         result: null,
       }
     }
 
     const store = await storeJson.read((s) => s).once()
     if (input.username === store?.adminUsername) {
-      throw new Error('Cannot remove the configured owner/admin account.')
+      throw new Error(i18n('Cannot remove the configured owner/admin account.'))
     }
 
     await runPythonScript(
@@ -65,17 +70,19 @@ username = os.environ["TARGET_USERNAME"]
 
 user = User.objects.filter(username=username).first()
 if user is None:
-    print("User does not exist.", file=sys.stderr)
+    print(os.environ["ERROR_USER_MISSING"], file=sys.stderr)
     sys.exit(1)
 
 if user.is_superuser and User.objects.filter(is_superuser=True).count() <= 1:
-    print("Cannot remove the last superuser.", file=sys.stderr)
+    print(os.environ["ERROR_LAST_SUPERUSER"], file=sys.stderr)
     sys.exit(1)
 
 user.delete()
 `.trim(),
       {
         TARGET_USERNAME: input.username,
+        ERROR_USER_MISSING: i18n('User does not exist.'),
+        ERROR_LAST_SUPERUSER: i18n('Cannot remove the last superuser.'),
       },
     )
   },

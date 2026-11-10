@@ -1,4 +1,5 @@
 import { storeJson } from '../fileModels/store.json'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { linkdingDataDir, linkdingWorkDir } from '../utils'
 
@@ -51,6 +52,27 @@ export const isDatabaseInitialized = (effects: ActionEffects) =>
     return result.exitCode === 0
   })
 
+export const ownerIsSuperuser = (effects: ActionEffects, username: string) =>
+  withLinkdingSubcontainer(effects, async (sub) => {
+    const { stdout } = await sub.execFail(
+      [
+        'python',
+        '-c',
+        `import os, sqlite3
+path = os.path.join(os.environ['DATA_DIR'], 'db.sqlite3')
+if not os.path.isfile(path):
+    print('false')
+else:
+    db = sqlite3.connect('file:' + path + '?mode=ro', uri=True)
+    exists = db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='auth_user'").fetchone()
+    row = db.execute('SELECT is_superuser FROM auth_user WHERE username = ?', (os.environ['OWNER'],)).fetchone() if exists else None
+    print('true' if row and row[0] else 'false')`,
+      ],
+      { env: { DATA_DIR: linkdingDataDir, OWNER: username } },
+    )
+    return stdout.toString().trim() === 'true'
+  })
+
 export const dynamicNonOwnerUserSelect = (
   effects: ActionEffects,
   {
@@ -71,15 +93,17 @@ export const dynamicNonOwnerUserSelect = (
     if (!(await isDatabaseInitialized(effects))) {
       return {
         name,
-        description:
+        description: i18n(
           'Database not initialized yet. Start Linkding at least once, then retry.',
+        ),
         warning,
         default: noSelectableUsersOption,
         values: {
-          [noSelectableUsersOption]: 'No selectable users found',
+          [noSelectableUsersOption]: i18n('No selectable users found'),
         },
-        disabled:
+        disabled: i18n(
           'Database not initialized yet. Start Linkding at least once, then retry.',
+        ),
       }
     }
 
@@ -97,7 +121,7 @@ export const dynamicNonOwnerUserSelect = (
         warning,
         default: noSelectableUsersOption,
         values: {
-          [noSelectableUsersOption]: 'No selectable users found',
+          [noSelectableUsersOption]: i18n('No selectable users found'),
         },
         disabled: emptyDisabledReason,
       }
@@ -167,11 +191,11 @@ require_superuser = os.environ["REQUIRE_SUPERUSER"] == "true"
 
 user = User.objects.filter(username=username).first()
 if user is None:
-    print("User does not exist.", file=sys.stderr)
+    print(os.environ["ERROR_USER_MISSING"], file=sys.stderr)
     sys.exit(1)
 
 if require_superuser and not user.is_superuser:
-    print("Configured owner account is not a superuser.", file=sys.stderr)
+    print(os.environ["ERROR_OWNER_NOT_SUPERUSER"], file=sys.stderr)
     sys.exit(1)
 
 user.set_password(password)
@@ -181,6 +205,10 @@ user.save()
       TARGET_USERNAME: username,
       NEW_PASSWORD: password,
       REQUIRE_SUPERUSER: requireSuperuser ? 'true' : 'false',
+      ERROR_USER_MISSING: i18n('User does not exist.'),
+      ERROR_OWNER_NOT_SUPERUSER: i18n(
+        'Configured owner account is not a superuser.',
+      ),
     },
   )
 

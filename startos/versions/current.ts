@@ -1,5 +1,6 @@
 import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 import { legacyStoreJson, storeJson } from '../fileModels/store.json'
+import { ownerIsSuperuser } from '../actions/linkdingUserHelpers'
 
 export const current = VersionInfo.of({
   version: '1.47.0:0',
@@ -20,9 +21,12 @@ export const current = VersionInfo.of({
       const legacy = await legacyStoreJson.read().once()
       if (legacy) {
         if (!(await storeJson.read().once())) {
+          const adminUsername = legacy.adminUsername ?? 'owner'
           await storeJson.merge(effects, {
-            adminUsername: legacy.adminUsername ?? 'owner',
-            adminConfigured: !!legacy.adminPassword,
+            adminUsername,
+            adminConfigured:
+              !!legacy.adminPassword &&
+              (await ownerIsSuperuser(effects, adminUsername)),
           })
         }
         await legacyStoreJson.merge(effects, { adminPassword: undefined })

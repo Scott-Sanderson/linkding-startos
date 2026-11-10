@@ -13,8 +13,8 @@ const { InputSpec, Value } = sdk
 export const resetUserPassword = sdk.Action.withInput(
   'reset-user-password',
   async () => ({
-    name: 'Reset User Password',
-    description: 'Set a new password for an existing user.',
+    name: i18n('Reset User Password'),
+    description: i18n('Set a new password for an existing user.'),
     warning: null,
     allowedStatuses: 'any',
     group: i18n('User Management'),
@@ -23,16 +23,20 @@ export const resetUserPassword = sdk.Action.withInput(
   async ({ effects }) =>
     InputSpec.of({
       username: dynamicNonOwnerUserSelect(effects, {
-        name: 'User',
-        description: 'Select the user account whose password should be reset.',
-        emptyDescription:
+        name: i18n('User'),
+        description: i18n(
+          'Select the user account whose password should be reset.',
+        ),
+        emptyDescription: i18n(
           'No non-owner users are currently available for password reset.',
-        emptyDisabledReason:
+        ),
+        emptyDisabledReason: i18n(
           'No non-owner users are available for password reset.',
+        ),
       }),
       password: Value.text({
-        name: 'Password',
-        description: 'New password.',
+        name: i18n('Password'),
+        description: i18n('New password.'),
         warning: null,
         required: true,
         default: null,
@@ -49,16 +53,19 @@ export const resetUserPassword = sdk.Action.withInput(
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start Linkding at least once, then retry.',
+        i18n(
+          'Database not initialized yet. Start Linkding at least once, then retry.',
+        ),
       )
     }
 
     if (input.username === noSelectableUsersOption) {
       return {
         version: '1' as const,
-        title: 'No Users Available',
-        message:
+        title: i18n('No Users Available'),
+        message: i18n(
           'No non-owner users are currently available for password reset.',
+        ),
         result: null,
       }
     }
@@ -66,7 +73,7 @@ export const resetUserPassword = sdk.Action.withInput(
     const store = await storeJson.read((s) => s).once()
     if (input.username === (store?.adminUsername ?? 'owner')) {
       throw new Error(
-        'Use Set Owner Password for the configured owner/admin account.',
+        i18n('Use Set Owner Password for the configured owner/admin account.'),
       )
     }
 

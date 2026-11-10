@@ -17,3 +17,5 @@ Use the web interface to manage and share bookmarks. The **Add User**, **Get Use
 If you publish Linkding through a tunnel to keep your home IP private, also send its outbound traffic through that tunnel. Sites whose metadata or icons Linkding fetches can otherwise see your home IP. If you use a tunnel for another reason, you do not need to change this.
 
 The standard image does not include server-side Chromium snapshots. Browser-extension archiving remains available.
+
+Linkding blocks fetching metadata and previews from internal network hosts by default. This package does not expose the upstream option for allowing exceptions.
