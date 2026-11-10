@@ -3,7 +3,7 @@ import { sdk } from './sdk'
 import { linkdingDataDir, uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects }) => {
-  console.info(i18n('Starting linkding!'))
+  console.info(i18n('Starting Linkding!'))
 
   return sdk.Daemons.of(effects).addDaemon('primary', {
     subcontainer: await sdk.SubContainer.of(

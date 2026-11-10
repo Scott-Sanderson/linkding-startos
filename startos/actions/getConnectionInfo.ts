@@ -121,7 +121,7 @@ export const getConnectionInfo = sdk.Action.withoutInput(
 
     if (addresses.length === 0) {
       throw new Error(
-        'No linkding interface addresses are available yet. Start the service and retry.',
+        'No Linkding interface addresses are available yet. Start the service and retry.',
       )
     }
 
@@ -138,7 +138,7 @@ export const getConnectionInfo = sdk.Action.withoutInput(
     return {
       version: '1' as const,
       title: 'Linkding Connection Info',
-      message: 'Use an available address to connect to linkding.',
+      message: 'Use an available address to connect to Linkding.',
       result: {
         type: 'group' as const,
         value: [

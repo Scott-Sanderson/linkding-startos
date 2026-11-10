@@ -35,7 +35,7 @@ export const removeUser = sdk.Action.withInput(
   async ({ effects, input }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
+        'Database not initialized yet. Start Linkding at least once, then retry.',
       )
     }
 

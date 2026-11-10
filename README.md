@@ -1,6 +1,6 @@
-# linkding on StartOS
+# Linkding on StartOS
 
-[linkding](https://linkding.link/) is a self-hosted bookmark manager. Everything not described below behaves as documented upstream.
+[Linkding](https://linkding.link/) is a self-hosted bookmark manager. Everything not described below behaves as documented upstream.
 
 ## Runtime and data
 
@@ -10,7 +10,7 @@ The **Web UI** interface serves HTTP on port 9090. Its available addresses depen
 
 ## Owner and user management
 
-On a fresh install, a critical task prompts the user to run **Set Owner Password**. The action generates a password, initializes the database using linkding's management commands, creates the `owner` superuser if necessary, and displays the credentials once. The password is not kept in the StartOS store; run the action again to replace it. Linkding stores its password hash in SQLite.
+On a fresh install, a critical task prompts the user to run **Set Owner Password**. The action generates a password, initializes the database using Linkding's management commands, creates the `owner` superuser if necessary, and displays the credentials once. The password is not kept in the StartOS store; run the action again to replace it. Linkding stores its password hash in SQLite.
 
 **Add User**, **Get User List**, **Remove User**, **Reset User Password**, and **Set User Admin Status** manage additional users. Owner and last-superuser protections apply where appropriate.
 

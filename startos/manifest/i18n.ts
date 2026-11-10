@@ -8,13 +8,13 @@ export const short = {
 
 export const long = {
   en_US:
-    'linkding is a minimal, fast bookmark manager with tagging, search, and import/export features.',
+    'Linkding is a minimal, fast bookmark manager with tagging, search, and import/export features.',
   es_ES:
-    'linkding es un gestor de marcadores minimalista y rápido con funciones de etiquetas, búsqueda e importación/exportación.',
+    'Linkding es un gestor de marcadores minimalista y rápido con funciones de etiquetas, búsqueda e importación/exportación.',
   de_DE:
-    'linkding ist ein minimalistischer, schneller Lesezeichen-Manager mit Tags, Suche und Import-/Exportfunktionen.',
+    'Linkding ist ein minimalistischer, schneller Lesezeichen-Manager mit Tags, Suche und Import-/Exportfunktionen.',
   pl_PL:
-    'linkding to minimalistyczny i szybki menedżer zakładek z tagami, wyszukiwaniem i importem/eksportem.',
+    'Linkding to minimalistyczny i szybki menedżer zakładek z tagami, wyszukiwaniem i importem/eksportem.',
   fr_FR:
-    "linkding est un gestionnaire de signets minimaliste et rapide avec des fonctions d'étiquettes, de recherche et d'import/export.",
+    "Linkding est un gestionnaire de signets minimaliste et rapide avec des fonctions d'étiquettes, de recherche et d'import/export.",
 }

@@ -72,14 +72,14 @@ export const dynamicNonOwnerUserSelect = (
       return {
         name,
         description:
-          'Database not initialized yet. Start linkding at least once, then retry.',
+          'Database not initialized yet. Start Linkding at least once, then retry.',
         warning,
         default: noSelectableUsersOption,
         values: {
           [noSelectableUsersOption]: 'No selectable users found',
         },
         disabled:
-          'Database not initialized yet. Start linkding at least once, then retry.',
+          'Database not initialized yet. Start Linkding at least once, then retry.',
       }
     }
 

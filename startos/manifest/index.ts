@@ -3,7 +3,7 @@ import { long, short } from './i18n'
 
 export const manifest = setupManifest({
   id: 'linkding',
-  title: 'linkding',
+  title: 'Linkding',
   license: 'MIT',
   packageRepo: 'https://github.com/Scott-Sanderson/linkding-startos',
   upstreamRepo: 'https://github.com/sissbruecker/linkding',

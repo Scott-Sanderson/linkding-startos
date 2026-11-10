@@ -9,7 +9,7 @@ export const getUserList = sdk.Action.withoutInput(
   'get-user-list',
   async () => ({
     name: 'Get User List',
-    description: 'Show all linkding users and their roles.',
+    description: 'Show all Linkding users and their roles.',
     warning: null,
     allowedStatuses: 'any',
     group: i18n('User Management'),
@@ -18,7 +18,7 @@ export const getUserList = sdk.Action.withoutInput(
   async ({ effects }) => {
     if (!(await isDatabaseInitialized(effects))) {
       throw new Error(
-        'Database not initialized yet. Start linkding at least once, then retry.',
+        'Database not initialized yet. Start Linkding at least once, then retry.',
       )
     }
 

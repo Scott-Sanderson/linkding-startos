@@ -9,7 +9,7 @@ export const initializeService = sdk.setupOnInit(async (effects) => {
     .const(effects)
   if (!configured) {
     await sdk.action.createOwnTask(effects, resetOwnerPassword, 'critical', {
-      reason: i18n('Set the owner password before signing in to linkding.'),
+      reason: i18n('Set the owner password before signing in to Linkding.'),
     })
   }
 })
