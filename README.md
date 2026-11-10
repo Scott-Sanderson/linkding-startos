@@ -51,7 +51,7 @@ The owner-password action runs Linkding's database migrations and initial-superu
 
 ## Actions
 
-Setting the owner password creates or changes the owner account password and can be repeated to replace it; save the displayed credential because it cannot be retrieved again. User-management actions read or modify the SQLite database through temporary subcontainers. Creating a user returns its credentials; deleting one is permanent. The owner username is reserved, and the owner and last superuser are protected from removal or demotion. These operations do not intentionally restart the service. Connection information is read from the current interface and can be requested repeatedly without changing it.
+Setting the owner password creates or changes the owner account password, reactivates that account if necessary, and restores its administrator privileges. The action requests confirmation and can be repeated; save the displayed credential because it cannot be retrieved again. User-management actions read or modify the SQLite database through temporary subcontainers. Creating a user returns its credentials; deleting one is permanent. The owner username is reserved, and the owner and last superuser are protected from removal or demotion. These operations do not intentionally restart the service. Connection information is read from the current interface and can be requested repeatedly without changing it.
 
 ## Tasks
 

@@ -8,7 +8,7 @@
 
 1. Run **Set Owner Password** when prompted and save the generated credentials. The password cannot be shown again.
 2. Start the service and open **Web UI**. Sign in with the owner credentials.
-3. If you lose the password, run **Set Owner Password** again to replace it.
+3. If you lose access, run **Set Owner Password** again. It replaces the password and restores the owner account's administrator access, including reactivating a disabled account.
 
 ## Using Linkding
 

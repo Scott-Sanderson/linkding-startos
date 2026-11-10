@@ -52,7 +52,7 @@ export const isDatabaseInitialized = (effects: ActionEffects) =>
     return result.exitCode === 0
   })
 
-export const ownerIsSuperuser = (effects: ActionEffects, username: string) =>
+export const ownerHasAdminAccess = (effects: ActionEffects, username: string) =>
   withLinkdingSubcontainer(effects, async (sub) => {
     const { stdout } = await sub.execFail(
       [
@@ -65,8 +65,8 @@ if not os.path.isfile(path):
 else:
     db = sqlite3.connect('file:' + path + '?mode=ro', uri=True)
     exists = db.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='auth_user'").fetchone()
-    row = db.execute('SELECT is_superuser FROM auth_user WHERE username = ?', (os.environ['OWNER'],)).fetchone() if exists else None
-    print('true' if row and row[0] else 'false')`,
+    row = db.execute('SELECT is_superuser, is_staff, is_active FROM auth_user WHERE username = ?', (os.environ['OWNER'],)).fetchone() if exists else None
+    print('true' if row and all(row) else 'false')`,
       ],
       { env: { DATA_DIR: linkdingDataDir, OWNER: username } },
     )
@@ -170,11 +170,9 @@ export const setUserPassword = async (
   {
     username,
     password,
-    requireSuperuser = false,
   }: {
     username: string
     password: string
-    requireSuperuser?: boolean
   },
 ) =>
   runPythonScript(
@@ -187,15 +185,9 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 username = os.environ["TARGET_USERNAME"]
 password = os.environ["NEW_PASSWORD"]
-require_superuser = os.environ["REQUIRE_SUPERUSER"] == "true"
-
 user = User.objects.filter(username=username).first()
 if user is None:
     print(os.environ["ERROR_USER_MISSING"], file=sys.stderr)
-    sys.exit(1)
-
-if require_superuser and not user.is_superuser:
-    print(os.environ["ERROR_OWNER_NOT_SUPERUSER"], file=sys.stderr)
     sys.exit(1)
 
 user.set_password(password)
@@ -204,11 +196,37 @@ user.save()
     {
       TARGET_USERNAME: username,
       NEW_PASSWORD: password,
-      REQUIRE_SUPERUSER: requireSuperuser ? 'true' : 'false',
       ERROR_USER_MISSING: i18n('User does not exist.'),
-      ERROR_OWNER_NOT_SUPERUSER: i18n(
-        'Configured owner account is not a superuser.',
-      ),
+    },
+  )
+
+export const restoreOwnerPassword = (
+  effects: ActionEffects,
+  { username, password }: { username: string; password: string },
+) =>
+  runPythonScript(
+    effects,
+    `
+import os
+import sys
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+user = User.objects.filter(username=os.environ["TARGET_USERNAME"]).first()
+if user is None:
+    print(os.environ["ERROR_USER_MISSING"], file=sys.stderr)
+    sys.exit(1)
+
+user.is_superuser = True
+user.is_staff = True
+user.is_active = True
+user.set_password(os.environ["NEW_PASSWORD"])
+user.save(update_fields=["password", "is_superuser", "is_staff", "is_active"])
+`.trim(),
+    {
+      TARGET_USERNAME: username,
+      NEW_PASSWORD: password,
+      ERROR_USER_MISSING: i18n('User does not exist.'),
     },
   )
 

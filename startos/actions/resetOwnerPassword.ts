@@ -4,22 +4,27 @@ import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { linkdingWorkDir } from '../utils'
 import {
-  setUserPassword,
+  restoreOwnerPassword,
   withLinkdingSubcontainer,
 } from './linkdingUserHelpers'
 
 export const resetOwnerPassword = sdk.Action.withoutInput(
   'reset-owner-password',
-  async ({ effects }) => ({
-    name: i18n('Set Owner Password'),
-    description: i18n('Generate a password for the owner account.'),
-    warning: (await storeJson.read((s) => s.adminConfigured).const(effects))
-      ? i18n('This replaces the current owner password.')
-      : null,
-    allowedStatuses: 'any',
-    group: i18n('Admin & Access'),
-    visibility: 'enabled',
-  }),
+  async ({ effects }) => {
+    const username =
+      (await storeJson.read((s) => s.adminUsername).const(effects)) ?? 'owner'
+    return {
+      name: i18n('Set Owner Password'),
+      description: i18n('Generate a password for the owner account.'),
+      warning: i18n(
+        'This replaces the password for ${username} and restores administrator access, including reactivating a disabled account.',
+        { username },
+      ),
+      allowedStatuses: 'any',
+      group: i18n('Admin & Access'),
+      visibility: 'enabled',
+    }
+  },
   async ({ effects }) => {
     const username =
       (await storeJson.read((s) => s.adminUsername).once()) ?? 'owner'
@@ -34,10 +39,9 @@ export const resetOwnerPassword = sdk.Action.withoutInput(
         env: { LD_SUPERUSER_NAME: username, LD_SUPERUSER_PASSWORD: password },
       })
     })
-    await setUserPassword(effects, {
+    await restoreOwnerPassword(effects, {
       username,
       password,
-      requireSuperuser: true,
     })
     await storeJson.merge(effects, {
       adminUsername: username,

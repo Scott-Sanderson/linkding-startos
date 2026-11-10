@@ -16,7 +16,7 @@ const dict = {
 
   'Set Owner Password': 13,
   'Generate a password for the owner account.': 14,
-  'This replaces the current owner password.': 15,
+  'This replaces the password for ${username} and restores administrator access, including reactivating a disabled account.': 15,
   'Admin & Access': 16,
   'User Management': 17,
   'Owner Credentials': 18,
@@ -64,7 +64,6 @@ const dict = {
   'Enable or disable admin privileges for this user.': 60,
   'Cannot revoke admin privileges from the configured owner/admin account.': 61,
   'Cannot demote the last superuser.': 62,
-  'Configured owner account is not a superuser.': 63,
   'No selectable users found': 64,
   'Get User List': 65,
   'Show all Linkding users and their roles.': 66,
